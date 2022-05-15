@@ -363,6 +363,7 @@ MOB_GIT_HOOKS_ENABLED=false
 MOB_REQUIRE_COMMIT_MESSAGE=false
 MOB_VOICE_COMMAND="say \"%s\""
 MOB_VOICE_MESSAGE="mob next"
+MOB_START_HOOK=""
 MOB_NOTIFY_COMMAND="/usr/bin/osascript -e 'display notification \"%s\"'"
 MOB_NOTIFY_MESSAGE="mob next"
 MOB_NEXT_STAY=true

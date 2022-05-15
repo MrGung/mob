@@ -53,6 +53,7 @@ type Configuration struct {
 	RequireCommitMessage           bool   // override with MOB_REQUIRE_COMMIT_MESSAGE
 	VoiceCommand                   string // override with MOB_VOICE_COMMAND
 	VoiceMessage                   string // override with MOB_VOICE_MESSAGE
+	StartHook                      string // override with MOB_START_HOOK
 	NotifyCommand                  string // override with MOB_NOTIFY_COMMAND
 	NotifyMessage                  string // override with MOB_NOTIFY_MESSAGE
 	NextStay                       bool   // override with MOB_NEXT_STAY
@@ -311,6 +312,7 @@ func getDefaultConfiguration() Configuration {
 		GitHooksEnabled:                false,
 		VoiceCommand:                   voiceCommand,
 		VoiceMessage:                   "mob next",
+		StartHook:                      "",
 		NotifyCommand:                  notifyCommand,
 		NotifyMessage:                  "mob next",
 		NextStay:                       true,
@@ -382,6 +384,8 @@ func parseUserConfiguration(configuration Configuration, path string) Configurat
 			setUnquotedString(&configuration.VoiceCommand, key, value)
 		case "MOB_VOICE_MESSAGE":
 			setUnquotedString(&configuration.VoiceMessage, key, value)
+		case "MOB_START_HOOK":
+			setUnquotedString(&configuration.StartHook, key, value)
 		case "MOB_NOTIFY_COMMAND":
 			setUnquotedString(&configuration.NotifyCommand, key, value)
 		case "MOB_NOTIFY_MESSAGE":
@@ -555,6 +559,7 @@ func parseEnvironmentVariables(configuration Configuration) Configuration {
 	setBoolFromEnvVariable(&configuration.RequireCommitMessage, "MOB_REQUIRE_COMMIT_MESSAGE")
 	setOptionalStringFromEnvVariable(&configuration.VoiceCommand, "MOB_VOICE_COMMAND")
 	setStringFromEnvVariable(&configuration.VoiceMessage, "MOB_VOICE_MESSAGE")
+	setOptionalStringFromEnvVariable(&configuration.StartHook, "MOB_START_HOOK")
 	setOptionalStringFromEnvVariable(&configuration.NotifyCommand, "MOB_NOTIFY_COMMAND")
 	setStringFromEnvVariable(&configuration.NotifyMessage, "MOB_NOTIFY_MESSAGE")
 	setStringFromEnvVariable(&configuration.WipBranchQualifierSeparator, "MOB_WIP_BRANCH_QUALIFIER_SEPARATOR")
@@ -672,6 +677,7 @@ func config(c Configuration) {
 	say("MOB_REQUIRE_COMMIT_MESSAGE" + "=" + strconv.FormatBool(c.RequireCommitMessage))
 	say("MOB_VOICE_COMMAND" + "=" + quote(c.VoiceCommand))
 	say("MOB_VOICE_MESSAGE" + "=" + quote(c.VoiceMessage))
+	say("MOB_START_HOOK" + "=" + quote(c.StartHook))
 	say("MOB_NOTIFY_COMMAND" + "=" + quote(c.NotifyCommand))
 	say("MOB_NOTIFY_MESSAGE" + "=" + quote(c.NotifyMessage))
 	say("MOB_NEXT_STAY" + "=" + strconv.FormatBool(c.NextStay))
@@ -1174,6 +1180,8 @@ func start(configuration Configuration) error {
 	sayLastCommitsList(currentBaseBranch.String(), currentWipBranch.String())
 
 	openLastModifiedFileIfPresent(configuration)
+
+	executeStartHook()
 
 	return nil // no error
 }
