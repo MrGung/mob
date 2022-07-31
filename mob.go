@@ -1181,9 +1181,25 @@ func start(configuration Configuration) error {
 
 	openLastModifiedFileIfPresent(configuration)
 
-	executeStartHook()
+	runStartHook(configuration.StartHook)
 
 	return nil // no error
+}
+
+func runStartHook(startHook string) {
+	
+	if len(startHook) == 0 {
+		// no hook configured, default is ""
+		return
+	}
+	
+	err := executeCommandsInBackgroundProcess(startHook)
+
+	if err != nil {
+		sayError(fmt.Sprintf("start hook couldn't be started on your system (%s)", runtime.GOOS))
+		sayError(err.Error())
+		exit(1)
+	}
 }
 
 func openLastModifiedFileIfPresent(configuration Configuration) {
